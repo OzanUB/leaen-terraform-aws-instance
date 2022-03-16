@@ -71,17 +71,18 @@ resource "aws_instance" "app_server" {
 
     
     inline = [
-      "yum update -y",
-      "yum install -y nginx",
-      "systemctl start nginx",
-      "systemctl status nginx",
+      "sudo yum update -y",
+      "sudo yum install -y nginx",
+      "sudo systemctl start nginx",
+      "sudo systemctl status nginx",
       "curl http://localhost"
     ]
 
     connection {
       type     = "ssh"
       user     = "ec2-user"
-      private_key = module.ssh_key_pair.private_key
+      #private_key = module.ssh_key_pair.private_key
+      private_key ="${file("${var.key_path}/${var.private_key_name}")}"
       host     = self.public_ip
       agent    = true
     }
