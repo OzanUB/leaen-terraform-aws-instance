@@ -67,6 +67,20 @@ resource "aws_instance" "app_server" {
     Name = "ExampleAppServerInstance"
   }
 
+  
+}
+resource "null_resource" "cluster" {
+  # Changes to any instance of the cluster requires re-provisioning
+  depends_on = [aws_instance.app_server]
+
+  connection {
+      type     = "ssh"
+      user     = "ec2-user"
+      #private_key = module.ssh_key_pair.private_key
+      private_key ="${file("${var.key_path}/${var.private_key_name}")}"
+      host     = aws_instance.app_server.public_ip
+      agent    = true
+  }
   provisioner "remote-exec" {
 
     
@@ -75,21 +89,7 @@ resource "aws_instance" "app_server" {
       "sudo yum install -y nginx",
       "sudo systemctl start nginx",
       "sudo systemctl status nginx",
-      "curl http://localhost"
-    ]
-
-    connection {
-      type     = "ssh"
-      user     = "ec2-user"
-      #private_key = module.ssh_key_pair.private_key
-      private_key ="${file("${var.key_path}/${var.private_key_name}")}"
-      host     = self.public_ip
-      agent    = true
-    }
-
+    ]   
   }
-
 }
-
-
 
